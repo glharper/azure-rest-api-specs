@@ -4598,10 +4598,11 @@
           "type": "string",
           "description": "Does MCP server require approval",
           "enum": [
-            "never"
+            "never",
+            "always"
           ],
           "x-ms-enum": {
-            "modelAsString": false
+            "modelAsString": true
           },
           "x-ms-client-name": "requireApproval"
         }
