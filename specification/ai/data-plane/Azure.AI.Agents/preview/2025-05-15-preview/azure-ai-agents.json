@@ -1693,6 +1693,66 @@
         }
       }
     },
+    "/threads/{threadId}/runs/threads/{threadId}/runs/{runId}/submit_tool_approval": {
+      "post": {
+        "operationId": "Runs_SubmitToolApprovals",
+        "description": "Submits approval from client as requested by tool calls in a run.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
+          },
+          {
+            "name": "threadId",
+            "in": "path",
+            "description": "Identifier of the thread.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "runId",
+            "in": "path",
+            "description": "Identifier of the run.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tool_approvals": {
+                  "type": "array",
+                  "description": "A list of tool approvals allowing data to be sent to tools.",
+                  "items": {
+                    "$ref": "#/definitions/ToolApproval"
+                  },
+                  "x-ms-client-name": "toolApprovals"
+                }
+              },
+              "required": [
+                "tool_approvals"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated information about the run.",
+            "schema": {
+              "$ref": "#/definitions/ThreadRun"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/AgentV1Error"
+            }
+          }
+        }
+      }
+    },
     "/threads/runs": {
       "post": {
         "operationId": "CreateThreadAndRun",
@@ -3102,7 +3162,8 @@
         "azure_ai_search",
         "bing_custom_search",
         "connected_agent",
-        "deep_research"
+        "deep_research",
+        "mcp"
       ],
       "x-ms-enum": {
         "name": "AgentsNamedToolChoiceType",
@@ -3157,6 +3218,11 @@
             "name": "deepResearch",
             "value": "deep_research",
             "description": "Tool type `deep_research`"
+          },
+          {
+            "name": "mcp",
+            "value": "mcp",
+            "description": "Tool type `mcp`"
           }
         ]
       }
@@ -4478,6 +4544,73 @@
         ]
       }
     },
+    "MCPToolDefinition": {
+      "type": "object",
+      "description": "The input definition information for a MCP tool which defines a MCP server endpoint",
+      "properties": {
+        "server_label": {
+          "type": "string",
+          "description": "The label for the MCP server",
+          "x-ms-client-name": "serverLabel"
+        },
+        "server_url": {
+          "type": "string",
+          "description": "The endpoint for the MCP server",
+          "x-ms-client-name": "serverUrl"
+        },
+        "allowed_tools": {
+          "type": "array",
+          "description": "List of allowed tools for MCP server",
+          "items": {
+            "type": "string"
+          },
+          "x-ms-client-name": "allowedTools"
+        }
+      },
+      "required": [
+        "server_label",
+        "server_url"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ToolDefinition"
+        }
+      ],
+      "x-ms-discriminator-value": "mcp"
+    },
+    "MCPToolResource": {
+      "type": "object",
+      "description": "A set of resources that are used by the `mcp` tool.",
+      "properties": {
+        "server_label": {
+          "type": "string",
+          "description": "The label for the MCP server",
+          "x-ms-client-name": "serverLabel"
+        },
+        "headers": {
+          "type": "object",
+          "description": "The headers for the MCP server updates",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "require_approval": {
+          "type": "string",
+          "description": "Does MCP server require approval",
+          "enum": [
+            "never"
+          ],
+          "x-ms-enum": {
+            "modelAsString": false
+          },
+          "x-ms-client-name": "requireApproval"
+        }
+      },
+      "required": [
+        "server_label",
+        "headers"
+      ]
+    },
     "MessageAttachment": {
       "type": "object",
       "description": "This describes to which tools a file has been attached.",
@@ -5585,6 +5718,35 @@
         "name",
         "arguments"
       ]
+    },
+    "RequiredMcpToolCall": {
+      "type": "object",
+      "description": "A representation of a requested call to a MCP tool, needed by the model to continue evaluation of a run.",
+      "properties": {
+        "arguments": {
+          "type": "string",
+          "description": "The arguments to use when invoking the mcp tool, as provided by the model. Arguments are presented as a JSON document that should be validated and parsed for evaluation."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the function used on the MCP server."
+        },
+        "server_label": {
+          "type": "string",
+          "description": "The label of the MCP server."
+        }
+      },
+      "required": [
+        "arguments",
+        "name",
+        "server_label"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/RequiredToolCall"
+        }
+      ],
+      "x-ms-discriminator-value": "mcp"
     },
     "RequiredToolCall": {
       "type": "object",
@@ -6981,6 +7143,29 @@
       ],
       "x-ms-discriminator-value": "sharepoint_grounding"
     },
+    "SubmitToolApprovalAction": {
+      "type": "object",
+      "description": "The details for required tool call approval that must be submitted for an agent thread run to continue.",
+      "properties": {
+        "submit_tool_approval": {
+          "type": "array",
+          "description": "The details describing tools that should be approved to continue run.",
+          "items": {
+            "$ref": "#/definitions/RequiredToolCall"
+          },
+          "x-ms-client-name": "submitToolApproval"
+        }
+      },
+      "required": [
+        "submit_tool_approval"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/RequiredAction"
+        }
+      ],
+      "x-ms-discriminator-value": "submit_tool_approval"
+    },
     "SubmitToolOutputsAction": {
       "type": "object",
       "description": "The details for required tool calls that must be submitted for an agent thread run to continue.",
@@ -7413,6 +7598,32 @@
         ]
       }
     },
+    "ToolApproval": {
+      "type": "object",
+      "description": "The data provided during a tool outputs submission to resolve pending tool calls and allow the model to continue.",
+      "properties": {
+        "tool_call_id": {
+          "type": "string",
+          "description": "The ID of the tool call being resolved, as provided in the tool calls of a required action from a run.",
+          "x-ms-client-name": "toolCallId"
+        },
+        "approve": {
+          "type": "boolean",
+          "description": "The approval boolean value to be submitted."
+        },
+        "headers": {
+          "type": "object",
+          "description": "Headers to be attached to the approval.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "tool_call_id",
+        "approve"
+      ]
+    },
     "ToolConnection": {
       "type": "object",
       "description": "A connection resource.",
@@ -7489,6 +7700,13 @@
           "$ref": "#/definitions/AzureAISearchToolResource",
           "description": "Resources to be used by the `azure_ai_search` tool consisting of index IDs and names.",
           "x-ms-client-name": "azureAISearch"
+        },
+        "mcp": {
+          "type": "array",
+          "description": "Resources to be used by the `mcp` tool consisting of a server label and headers.",
+          "items": {
+            "$ref": "#/definitions/MCPToolResource"
+          }
         }
       }
     },
