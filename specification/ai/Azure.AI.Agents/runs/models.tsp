@@ -3,7 +3,6 @@ import "@azure-tools/typespec-client-generator-core";
 import "../common/models.tsp";
 import "../threads/models.tsp";
 import "../tools/models.tsp";
-import "../tools/tool_resources.tsp";
 
 namespace Azure.AI.Agents;
 
