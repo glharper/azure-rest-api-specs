@@ -3,6 +3,7 @@ import "@azure-tools/typespec-client-generator-core";
 import "../common/models.tsp";
 import "../threads/models.tsp";
 import "../tools/models.tsp";
+import "../tools/tool_resources.tsp";
 
 namespace Azure.AI.Agents;
 
@@ -218,6 +219,12 @@ model CreateRunOptions {
   #suppress "@azure-tools/typespec-azure-core/no-nullable" "OpenAI uses explicit nullability, distinct from optionality"
   @doc("The overridden list of enabled tools that the agent should use to run the thread.")
   tools?: ToolDefinition[] | null;
+
+  #suppress "@azure-tools/typespec-azure-core/no-nullable" "OpenAI uses explicit nullability, distinct from optionality"
+  @doc("The overridden enabled tool resources that the agent should use to run the thread.")
+  @encodedName("application/json", "tool_resources")
+  @added(Versions.v2025_05_15_preview)
+  tool_resources?: ToolResources | null;
 
   /**
    * If `true`, returns a stream of events that happen during the Run as server-sent events,
