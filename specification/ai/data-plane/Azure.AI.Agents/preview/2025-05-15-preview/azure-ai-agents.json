@@ -1693,7 +1693,7 @@
         }
       }
     },
-    "/threads/{threadId}/runs/threads/{threadId}/runs/{runId}/submit_tool_approval": {
+    "/threads/{threadId}/runs/threads/{threadId}/runs/{runId}/submit_tool_outputs": {
       "post": {
         "operationId": "Runs_SubmitToolApprovals",
         "description": "Submits approval from client as requested by tool calls in a run.",

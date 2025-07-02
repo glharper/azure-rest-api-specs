@@ -199,7 +199,7 @@ namespace Azure.AI.Agents {
     #suppress "@azure-tools/typespec-azure-core/no-operation-id" "non-standard operations"
     #suppress "@azure-tools/typespec-azure-core/operation-missing-api-version" "not yet versioned"
     @post
-    @route("/threads/{threadId}/runs/{runId}/submit_tool_approval")
+    @route("/threads/{threadId}/runs/{runId}/submit_tool_outputs")
     @added(Versions.v2025_05_15_preview)
     submitToolApprovals is AgentOperation<
       {
