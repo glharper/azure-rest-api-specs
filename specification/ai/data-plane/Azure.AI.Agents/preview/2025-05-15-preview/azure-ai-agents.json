@@ -7188,11 +7188,8 @@
       "description": "The details for required tool call approval that must be submitted for an agent thread run to continue.",
       "properties": {
         "submit_tool_approval": {
-          "type": "array",
+          "$ref": "#/definitions/SubmitToolApprovalDetails",
           "description": "The details describing tools that should be approved to continue run.",
-          "items": {
-            "$ref": "#/definitions/RequiredToolCall"
-          },
           "x-ms-client-name": "submitToolApproval"
         }
       },
@@ -7205,6 +7202,23 @@
         }
       ],
       "x-ms-discriminator-value": "submit_tool_approval"
+    },
+    "SubmitToolApprovalDetails": {
+      "type": "object",
+      "description": "The details describing tools that should be approved.",
+      "properties": {
+        "tool_calls": {
+          "type": "array",
+          "description": "The list of tool calls that must be approved for the agent thread run to continue.",
+          "items": {
+            "$ref": "#/definitions/RequiredToolCall"
+          },
+          "x-ms-client-name": "toolCalls"
+        }
+      },
+      "required": [
+        "tool_calls"
+      ]
     },
     "SubmitToolOutputsAction": {
       "type": "object",
